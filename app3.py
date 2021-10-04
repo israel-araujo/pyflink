@@ -25,7 +25,8 @@ def job():
     ds = env.add_source(kafka_consumer)
 
     # Saída
-    output_path = 's3://rd-datalake-dev-temp/spark_dev/flink/output/'
+    #output_path = 's3://rd-datalake-dev-temp/spark_dev/flink/output/'
+    output_path = 's3://kubernets-flink-poc/pyflink-json/'
     file_sink = StreamingFileSink \
         .for_row_format(output_path, Encoder.simple_string_encoder()) \
         .with_output_file_config(OutputFileConfig.builder()

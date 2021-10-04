@@ -25,10 +25,6 @@ def job():
         'group.id': 'test_group'}
         )
     ds = env.add_source(kafka_consumer)
-
-    return env, t_env
-
-def exec_sql(env,t_env):
     t_env.execute_sql('''
                     CREATE TABLE sync (
                         cd_canal_venda INT,
@@ -44,5 +40,4 @@ def exec_sql(env,t_env):
 
 
 if __name__ == '__main__':
-    env, t_env = job()
-    exec_sql(env,t_env)
+    job()

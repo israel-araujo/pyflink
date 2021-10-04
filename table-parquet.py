@@ -5,6 +5,8 @@ from pyflink.table import StreamTableEnvironment
 from pyflink.common.serialization import Encoder
 from pyflink.common.typeinfo import Types
 from pyflink.datastream.execution_mode import RuntimeExecutionMode
+from pyflink.table import *
+
 
 # Teste do job usando DataStream API
 
@@ -13,7 +15,7 @@ def job():
     env.set_runtime_mode(execution_mode=RuntimeExecutionMode.STREAMING)
     env.enable_checkpointing(1000)
     env.get_checkpoint_config().set_max_concurrent_checkpoints(1)
-    t_env = StreamTableEnvironment.create(env)
+    #t_env = StreamTableEnvironment.create(env)
     # deserialization_schema = JsonRowDeserializationSchema.builder().type_info(type_info=Types.ROW([]).build()
     deserialization_schema = SimpleStringSchema()
     kafka_consumer = FlinkKafkaConsumer(
@@ -28,7 +30,7 @@ def job():
     file_sink = StreamingFileSink \
         .for_row_format(output_path, Encoder.simple_string_encoder()) \
         .with_output_file_config(OutputFileConfig.builder()
-        .with_part_suffix(".out")
+        .with_part_suffix(".parquet")
         .build()) \
         .with_rolling_policy(RollingPolicy.default_rolling_policy(part_size=5*1024*1024,rollover_interval=10*1000,inactivity_interval=10*1000)) \
         .build()
@@ -37,6 +39,8 @@ def wirte_table():
     '''
     write parquet format using table api
     '''
+    t_env = StreamTableEnvironment.create(env)
+
     t = t_env.from_data_stream(ds)
     t_env.create_temporary_view("InputTable", t)
     t_env.sql_query('''
@@ -45,7 +49,7 @@ def wirte_table():
                         ds_canal_venda STRING
                     ) WITH (
                         'connector' = 'filesystem',
-                        'path' = 's3://',
+                        'path' = 's3://kubernets-flink-poc/pyflink-parquet/',
                         'format' = 'parquet'
                     )''')
     t_env.execute_sql("INSERT INTO sync SELECT * FROM InputTable").wait()

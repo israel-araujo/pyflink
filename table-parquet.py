@@ -31,7 +31,7 @@ def job():
                     ) WITH (
                         'connector' = 'filesystem',
                         'path' = 's3://kubernets-flink-poc/pyflink-parquet/',
-                        'format' = 'hudi'
+                        'format' = '.parquet'
                     )''')
     table = t_env.from_data_stream(ds)
     table_result = table.execute_insert("sync")

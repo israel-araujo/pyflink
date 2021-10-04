@@ -36,7 +36,7 @@ def job():
 
     # write to s3
 
-    output_path = 's3://kubernets-flink-poc/pyflink-json/', pa.schema([('cd_canal_venda', pa.int64()),( 'ds_canal_venda', pa.string())])
+    output_path = 's3://kubernets-flink-poc/pyflink-json/'
     file_sink = StreamingFileSink \
         .for_row_format(output_path, Encoder.simple_string_encoder()) \
         .with_output_file_config(OutputFileConfig.builder()

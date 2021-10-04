@@ -14,7 +14,7 @@ def job():
     env = StreamExecutionEnvironment.get_execution_environment()
     env.set_runtime_mode(execution_mode=RuntimeExecutionMode.STREAMING)
     env.enable_checkpointing(1000)
-    env.add_jars("s3://kubernets-flink-poc/jars/hudi-flink-bundle_2.11-0.9.0.jar")
+    env.add_jars('/opt/flink/usrlib/hudi-flink-bundle_2.11-0.9.0.jar')
     env.get_checkpoint_config().set_max_concurrent_checkpoints(1)
     t_env = StreamTableEnvironment.create(env)
     deserialization_schema = SimpleStringSchema()
@@ -32,7 +32,7 @@ def job():
                     ) WITH (
                         'connector' = 'filesystem',
                         'path' = 's3://kubernets-flink-poc/pyflink-parquet/',
-                        'format' = 'parquet'
+                        'format' = 'hudi'
                     )''')
     table = t_env.from_data_stream(ds)
     table_result = table.execute_insert("sync")

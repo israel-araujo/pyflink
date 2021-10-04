@@ -37,7 +37,7 @@ def job():
 
     t = t_env.from_data_stream(ds)
     t_env.create_temporary_view("InputTable", t)
-    t_env.sql_query('''
+    t_env.execute_sql('''
                     CREATE TABLE sync (
                         cd_canal_venda INT,
                         ds_canal_venda STRING

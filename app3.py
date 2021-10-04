@@ -30,7 +30,8 @@ def job():
     file_sink = StreamingFileSink \
         .for_row_format(output_path, Encoder.simple_string_encoder()) \
         .with_output_file_config(OutputFileConfig.builder()
-        .with_part_suffix(".json")
+        #.with_part_suffix(".json")
+        .with_part_suffix(".parquet")
         .build()) \
         .with_rolling_policy(RollingPolicy.default_rolling_policy(part_size=5*1024*1024,rollover_interval=10*1000,inactivity_interval=10*1000)) \
         .build()

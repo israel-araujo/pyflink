@@ -26,17 +26,7 @@ def job():
         )
     ds = env.add_source(kafka_consumer)
     # Saída
-    output_path = 's3://kubernets-flink-poc/pyflink-json/'
-    file_sink = StreamingFileSink \
-        .for_row_format(output_path, Encoder.simple_string_encoder()) \
-        .with_output_file_config(OutputFileConfig.builder()
-        .with_part_suffix(".parquet")
-        .build()) \
-        .with_rolling_policy(RollingPolicy.default_rolling_policy(part_size=5*1024*1024,rollover_interval=10*1000,inactivity_interval=10*1000)) \
-        .build()
-
-    t = t_env.from_data_stream(ds)
-    t_env.create_temporary_view("InputTable", t)
+    output_path = 's3://kubernets-flink-poc/pyflink-parquet/'
     t_env.execute_sql('''
                     CREATE TABLE sync (
                         cd_canal_venda INT,
@@ -46,9 +36,11 @@ def job():
                         'path' = 's3://kubernets-flink-poc/pyflink-parquet/',
                         'format' = 'parquet'
                     )''')
-    t_env.execute_sql("INSERT INTO sync SELECT * FROM InputTable").wait()
+  #  t_env.execute_sql("INSERT INTO sync SELECT * FROM InputTable").wait()
+  #  env.execute("tb_canal_venda")
+    table = t_env.from_data_stream(ds)
+    table_result = table.execute_insert("sink")
     env.execute("tb_canal_venda")
-
 
 if __name__ == '__main__':
     job()

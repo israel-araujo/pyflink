@@ -15,7 +15,7 @@ def job():
     env.set_runtime_mode(execution_mode=RuntimeExecutionMode.STREAMING)
     env.enable_checkpointing(1000)
     env.get_checkpoint_config().set_max_concurrent_checkpoints(1)
-    #t_env = StreamTableEnvironment.create(env)
+    t_env = StreamTableEnvironment.create(env)
     # deserialization_schema = JsonRowDeserializationSchema.builder().type_info(type_info=Types.ROW([]).build()
     deserialization_schema = SimpleStringSchema()
     kafka_consumer = FlinkKafkaConsumer(
@@ -35,12 +35,6 @@ def job():
         .with_rolling_policy(RollingPolicy.default_rolling_policy(part_size=5*1024*1024,rollover_interval=10*1000,inactivity_interval=10*1000)) \
         .build()
 
-def wirte_table():
-    '''
-    write parquet format using table api
-    '''
-    t_env = StreamTableEnvironment.create(env)
-
     t = t_env.from_data_stream(ds)
     t_env.create_temporary_view("InputTable", t)
     t_env.sql_query('''
@@ -58,4 +52,3 @@ def wirte_table():
 
 if __name__ == '__main__':
     job()
-    wirte_table()

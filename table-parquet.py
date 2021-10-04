@@ -39,7 +39,7 @@ def job():
   #  t_env.execute_sql("INSERT INTO sync SELECT * FROM InputTable").wait()
   #  env.execute("tb_canal_venda")
     table = t_env.from_data_stream(ds)
-    table_result = table.execute_insert("sink")
+    table_result = table.execute_insert("sync")
     env.execute("tb_canal_venda")
 
 if __name__ == '__main__':

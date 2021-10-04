@@ -14,9 +14,9 @@ def job():
     env = StreamExecutionEnvironment.get_execution_environment()
     env.set_runtime_mode(execution_mode=RuntimeExecutionMode.STREAMING)
     env.enable_checkpointing(1000)
+    env.add_jars("s3://kubernets-flink-poc/jars/hudi-flink-bundle_2.11-0.9.0.jar")
     env.get_checkpoint_config().set_max_concurrent_checkpoints(1)
     t_env = StreamTableEnvironment.create(env)
-    # deserialization_schema = JsonRowDeserializationSchema.builder().type_info(type_info=Types.ROW([]).build()
     deserialization_schema = SimpleStringSchema()
     kafka_consumer = FlinkKafkaConsumer(
         topics='A_RAIABD-TB_CANAL_VENDA',
@@ -25,8 +25,10 @@ def job():
         'group.id': 'test_group'}
         )
     ds = env.add_source(kafka_consumer)
-    # Saída
-    output_path = 's3://kubernets-flink-poc/pyflink-parquet/'
+
+    return env, t_env
+
+def exec_sql(env,t_env):
     t_env.execute_sql('''
                     CREATE TABLE sync (
                         cd_canal_venda INT,
@@ -36,11 +38,11 @@ def job():
                         'path' = 's3://kubernets-flink-poc/pyflink-parquet/',
                         'format' = 'parquet'
                     )''')
-  #  t_env.execute_sql("INSERT INTO sync SELECT * FROM InputTable").wait()
-  #  env.execute("tb_canal_venda")
     table = t_env.from_data_stream(ds)
     table_result = table.execute_insert("sync")
     env.execute("tb_canal_venda")
 
+
 if __name__ == '__main__':
-    job()
+    env, t_env = job()
+    exec_sql(env,t_env)
